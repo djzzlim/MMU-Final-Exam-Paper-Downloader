@@ -25,6 +25,13 @@ print("""
 # Copyright notice
 print("Copyright (c) 2024 Lim Kar Joon. All rights reserved.\n")
 
+try:
+    requests.get("http://erep.mmu.edu.my")
+    print("You are connected to MMU VPN")
+except:
+    print("You are not connected to MMU VPN")
+    quit()
+
 def download_files(file_links, output_directory):
     for link in file_links:
         filename = link.split('/')[-1]  # Get the filename from the URL
@@ -114,4 +121,3 @@ for filename in current_dir_list.copy():  # Use copy() to iterate over a copy of
 download_files(file, subject_code_folder)
 
 print("Files downloaded successfully.")
-
