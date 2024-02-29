@@ -9,6 +9,7 @@ To get started, simply clone this repository to your local machine and follow th
 ### Prerequisites
 
 - Python 3.x
+- Cisco AnyConnect Secure Mobility Client
 - Requests library
 
 ### Installing
@@ -23,8 +24,9 @@ To get started, simply clone this repository to your local machine and follow th
    ```bash
    pip install requests
    ```
-
-3. Run the script:
+3. Connect to MMU VPN through Cisco AnyConnect Secure Mobility Client
+   
+4. Run the script:
 
    ```bash
    python main.py
