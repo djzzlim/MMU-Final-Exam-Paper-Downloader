@@ -34,9 +34,9 @@ To get started, simply clone this repository to your local machine and follow th
 
 ## Features
 
-Download final exam papers for various subjects at MMU
-Organize papers by subject code for easy access
-Automatically handle alternative URLs for downloads
+- Download final exam papers for various subjects at MMU
+- Organize papers by subject code for easy access
+- Automatically handle alternative URLs for downloads
 
 
 ### Contributions
