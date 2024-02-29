@@ -30,6 +30,7 @@ try:
     print("You are connected to MMU VPN")
 except:
     print("You are not connected to MMU VPN")
+    input("Press Any Key To Exit...")
     quit()
 
 def download_files(file_links, output_directory):
