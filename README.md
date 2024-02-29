@@ -17,7 +17,7 @@ To get started, simply clone this repository to your local machine and follow th
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/your-username/mmu-final-exam-downloader.git
+   git clone https://github.com/djzzlim/mmu-final-exam-downloader.git
    ```
 2. Install the Requests library using pip:
 
