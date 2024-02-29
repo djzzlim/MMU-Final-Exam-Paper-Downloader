@@ -20,15 +20,15 @@ To get started, simply clone this repository to your local machine and follow th
    ```
 2. Install the Requests library using pip:
 
-  ```bash
-  pip install requests
-  ```
+   ```bash
+   pip install requests
+   ```
 
 3. Run the script:
 
-  ```bash
-  python main.py
-  ```
+   ```bash
+   python main.py
+   ```
 
 ## Features
 
