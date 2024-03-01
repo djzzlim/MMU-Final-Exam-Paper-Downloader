@@ -86,7 +86,22 @@ def calculate_sha256(file_path_or_url):
                 for byte_block in iter(lambda: f.read(4096), b""):
                     sha256.update(byte_block)
     except Exception as e:
-        print(f"Error calculating SHA256 hash for {file_path_or_url}: {e}")
+        base, filename = file_path_or_url.split('/1/')
+        for i in range(2, 11):
+            try:
+                new_filelink = f"{base}/{i}/{filename}"
+                if file_path_or_url.startswith('http://') or file_path_or_url.startswith('https://'):
+                    with urllib.request.urlopen(file_path_or_url) as f:
+                        # Read the file in chunks to avoid loading the entire file into memory
+                        for byte_block in iter(lambda: f.read(4096), b""):
+                            sha256.update(byte_block)
+                else:
+                    with open(file_path_or_url, 'rb') as f:
+                        # Read the file in chunks to avoid loading the entire file into memory
+                        for byte_block in iter(lambda: f.read(4096), b""):
+                            sha256.update(byte_block)
+            except:
+                continue
 
     return sha256.hexdigest()
 
