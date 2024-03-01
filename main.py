@@ -27,13 +27,36 @@ print("""
 ********************************************
 """)
 
-try:
-    requests.get("http://erep.mmu.edu.my")
-    print("You are connected to MMU VPN")
-except:
-    print("You are not connected to MMU VPN")
-    input("Press Any Key To Exit...")
-    quit()
+while True:
+    try:
+        requests.get("http://erep.mmu.edu.my")
+        print("You are connected to MMU VPN")
+        break
+    except:
+        print("You are not connected to MMU VPN")
+        time.sleep(1)
+        try:
+            os.system("cls")
+        except:
+            os.system("clear")
+        print("Connecting.")
+        time.sleep(1)
+        try:
+            os.system("cls")
+        except:
+            os.system("clear")
+        print("Connecting..")
+        time.sleep(1)
+        try:
+            os.system("cls")
+        except:
+            os.system("clear")
+        print("Connecting...")
+        time.sleep(1)
+        try:
+            os.system("cls")
+        except:
+            os.system("clear")
 
 def find_most_duplicates(lst):
         max_count = 0
