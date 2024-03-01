@@ -10,7 +10,7 @@ except ImportError:
     print("Installing required libraries...")
     os.system('pip install requests')
     os.system('pip install json')
-
+import hashlib
 import requests
 import json
 import urllib.request
@@ -71,6 +71,25 @@ def find_most_duplicates(lst):
 
         return most_common_element
 
+def calculate_sha256(file_path_or_url):
+    sha256 = hashlib.sha256()
+
+    try:
+        if file_path_or_url.startswith('http://') or file_path_or_url.startswith('https://'):
+            with urllib.request.urlopen(file_path_or_url) as f:
+                # Read the file in chunks to avoid loading the entire file into memory
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256.update(byte_block)
+        else:
+            with open(file_path_or_url, 'rb') as f:
+                # Read the file in chunks to avoid loading the entire file into memory
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256.update(byte_block)
+    except Exception as e:
+        print(f"Error calculating SHA256 hash for {file_path_or_url}: {e}")
+
+    return sha256.hexdigest()
+
 def download_files(file_links, output_directory):
     for link in file_links:
         filename = link.split('/')[-1]  # Get the filename from the URL
@@ -96,15 +115,16 @@ def download_files(file_links, output_directory):
             print(f"Downloaded {filename_copy}")
         except Exception as e:
             print(f"Failed to download {filename_copy} from {link}. Trying alternative URLs.")
-            for i in range(2, 10):
+            for i in range(2, 11):
                 try:
                     eprintid = link.split('/')[-(i+1)]  # Get the eprintid from the URL
                     new_link = f"http://erep.mmu.edu.my/id/eprint/{eprintid}/{i}/{filename}"
                     urllib.request.urlretrieve(new_link, file_path)
-                    print(f"Successfully downloaded {filename_copy}")
-                    break  # Exit the loop if download is successful
                     if i == 10:
                         print("Please manually download {filename_copy}.")
+                    else:
+                        print(f"Successfully downloaded {filename_copy}")
+                        break  # Exit the loop if download is successful
                 except Exception as e:
                     continue
             else:
@@ -154,7 +174,6 @@ while True:
         file.append(file_link)
 
 
-    # Get the current working directory
     cwd = os.getcwd()
 
     # Check if the Final Exam folder exists
@@ -163,17 +182,23 @@ while True:
         os.makedirs(final_exam_folder)
 
     # Check if the Subject Code folder exists
-
     subject_code_folder = os.path.join(final_exam_folder, find_most_duplicates(title))
     if not os.path.exists(subject_code_folder):
         os.makedirs(subject_code_folder)
 
     current_dir_list = os.listdir(subject_code_folder)
 
-    for filename in current_dir_list.copy():  # Use copy() to iterate over a copy of the list
-        if filename in filename_list:
-            index = filename.index(filename)
-            del file[index]
+    # Use a set for faster membership testing
+    current_dir_set = set(current_dir_list)
+
+    # Remove items from 'file' list if they exist in the current directory
+    file = [f for f in file if f.split('/')[-1] not in current_dir_set]
+
+        # Use a set for faster membership testing
+    current_dir_hashes = {calculate_sha256(os.path.join(subject_code_folder, filename)) for filename in current_dir_list}
+
+    # Remove items from 'file' list if similar hashes already exist in the current directory
+    file = [f for f in file if calculate_sha256(f) not in current_dir_hashes]
 
     # Download files
     download_files(file, subject_code_folder)
