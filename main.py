@@ -51,9 +51,22 @@ def find_most_duplicates(lst):
 def download_files(file_links, output_directory):
     for link in file_links:
         filename = link.split('/')[-1]  # Get the filename from the URL
-        file_path = os.path.join(output_directory, filename)
-        file_path = file_path.replace("%20", " ")
+        filename = filename.replace("%20", " ")
         filename_copy = filename.replace("%20", " ")
+
+        # Extract the file extension
+        file_name, file_extension = os.path.splitext(filename)
+
+        # Generate a unique filename by appending a suffix
+        unique_filename = filename
+        suffix = 1
+
+        while os.path.exists(os.path.join(output_directory, unique_filename)):
+            # If the filename already exists, add a suffix to make it unique
+            unique_filename = f"{file_name}-{suffix}{file_extension}"
+            suffix += 1
+
+        file_path = os.path.join(output_directory, unique_filename)
         print(f"Downloading {filename_copy}...")
         try:
             urllib.request.urlretrieve(link, file_path)
