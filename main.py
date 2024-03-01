@@ -1,5 +1,7 @@
+# Copyright notice
+# Copyright (c) 2024 Lim Kar Joon. All rights reserved.
+import time
 import os
-
 # Check and install required libraries
 try:
     import requests
@@ -20,10 +22,10 @@ print("""
 *                                          *
 * Automatically download final exam papers *
 * from Multimedia University's Vlib.       *
+*                                          *
+* by Lim Kar Joon (2024)                   *
 ********************************************
 """)
-# Copyright notice
-print("Copyright (c) 2024 Lim Kar Joon. All rights reserved.\n")
 
 try:
     requests.get("http://erep.mmu.edu.my")
@@ -32,6 +34,19 @@ except:
     print("You are not connected to MMU VPN")
     input("Press Any Key To Exit...")
     quit()
+
+def find_most_duplicates(lst):
+        max_count = 0
+        most_common_element = None
+
+        for element in lst:
+            count = lst.count(element)
+
+            if count > max_count:
+                max_count = count
+                most_common_element = element
+
+        return most_common_element
 
 def download_files(file_links, output_directory):
     for link in file_links:
@@ -62,63 +77,81 @@ def download_files(file_links, output_directory):
 
 url = 'http://erep.mmu.edu.my/cgi/search/archive/simple/export_inhousedb_JSON.js'
 
-# Accept simplified subject code input
-print("Example: For 'TMA 1101 - Calculus', enter 'TMA 1101'")
-subject_code = input("Please enter Subject Code: ")
+while True:
+    # Accept simplified subject code input
+    print("Example: For 'TMA 1101 - Calculus', enter 'TMA 1101'")
+    print("Type 'Exit' or '' to QUIT")
+    subject_code = input("Please enter Subject Code: ")
 
-params = {
-    'screen': 'Search',
-    'dataset': 'archive',
-    '_action_export': '1',
-    'output': 'JSON',
-    'exp': f'0|1|-date/creators_name/title|archive|-|q:abstract/creators_name/date/documents/title:ALL:IN:{subject_code}|-|eprint_status:eprint_status:ANY:EQ:archive|metadata_visibility:metadata_visibility:ANY:EQ:show'
-}
+    if (subject_code == "" or subject_code == 'Exit'):
+        break
 
-response = requests.get(url, params=params)
+    params = {
+        'screen': 'Search',
+        'dataset': 'archive',
+        '_action_export': '1',
+        'output': 'JSON',
+        'exp': f'0|1|-date/creators_name/title|archive|-|q:abstract/creators_name/date/documents/title:ALL:IN:{subject_code}|-|eprint_status:eprint_status:ANY:EQ:archive|metadata_visibility:metadata_visibility:ANY:EQ:show'
+    }
 
-data = response.text
+    response = requests.get(url, params=params)
 
-data = data.replace("'", '"')
+    data = response.text
 
-parsed_data = json.loads(data)
+    data = data.replace("'", '"')
 
-counter = 0
+    parsed_data = json.loads(data)
 
-file = []
-filename_list = []
+    file = []
+    filename_list = []
+    title = []
 
-for item in parsed_data:
-    counter += 1
-    eprintid = item.get("eprintid", "")
-    document = item.get("documents", [{}])[0]  # Get the first document, or an empty dictionary if not found
-    filename = document.get("files", [{}])[0].get("filename", "")  # Get the filename from the first file, or an empty string if not found
-    filename_list.append(filename)
-    filename = filename.replace(' ', "%20")
-    file_link = f"http://erep.mmu.edu.my/id/eprint/{eprintid}/1/{filename}"
-    file.append(file_link)
+    for item in parsed_data:
+        titleid = item.get("title", "")
+        title.append(titleid)
+        eprintid = item.get("eprintid", "")
+        document = item.get("documents", [{}])[0]  # Get the first document, or an empty dictionary if not found
+        filename = document.get("files", [{}])[0].get("filename", "")  # Get the filename from the first file, or an empty string if not found
+        filename_list.append(filename)
+        filename = filename.replace(' ', "%20")
+        file_link = f"http://erep.mmu.edu.my/id/eprint/{eprintid}/1/{filename}"
+        file.append(file_link)
 
 
-# Get the current working directory
-cwd = os.getcwd()
+    # Get the current working directory
+    cwd = os.getcwd()
 
-# Check if the Final Exam folder exists
-final_exam_folder = os.path.join(cwd, "Final Exam")
-if not os.path.exists(final_exam_folder):
-    os.makedirs(final_exam_folder)
+    # Check if the Final Exam folder exists
+    final_exam_folder = os.path.join(cwd, "Final Exam")
+    if not os.path.exists(final_exam_folder):
+        os.makedirs(final_exam_folder)
 
-# Check if the Subject Code folder exists
-subject_code_folder = os.path.join(final_exam_folder, subject_code)
-if not os.path.exists(subject_code_folder):
-    os.makedirs(subject_code_folder)
+    # Check if the Subject Code folder exists
 
-current_dir_list = os.listdir(subject_code_folder)
+    subject_code_folder = os.path.join(final_exam_folder, find_most_duplicates(title))
+    if not os.path.exists(subject_code_folder):
+        os.makedirs(subject_code_folder)
 
-for filename in current_dir_list.copy():  # Use copy() to iterate over a copy of the list
-    if filename in filename_list:
-        index = filename.index(filename)
-        del file[index]
+    current_dir_list = os.listdir(subject_code_folder)
 
-# Download files
-download_files(file, subject_code_folder)
+    for filename in current_dir_list.copy():  # Use copy() to iterate over a copy of the list
+        if filename in filename_list:
+            index = filename.index(filename)
+            del file[index]
 
-print("Files downloaded successfully.")
+    # Download files
+    download_files(file, subject_code_folder)
+
+    print("Files downloaded successfully.")
+    time.sleep(1)
+    try:
+        os.system("cls")
+    except:
+        os.system("clear")
+        
+try:
+    os.system("cls")
+except:
+    os.system("clear")
+
+print("Goodbye!!!")
